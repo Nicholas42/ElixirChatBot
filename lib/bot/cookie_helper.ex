@@ -1,5 +1,10 @@
 defmodule Bot.CookieHelper do
-  def get_cookies(username, password) do
+  def get_cookies() do
+    [username, password | _] =
+      File.read!("login.txt")
+      |> String.split("\n")
+      |> Enum.map(&String.trim/1)
+
     resp =
       HTTPoison.post!(
         "https://chat.qed-verein.de/rubychat/account",
@@ -13,5 +18,7 @@ defmodule Bot.CookieHelper do
     |> Enum.map(fn {_, value} ->
       value |> String.split(";") |> hd |> String.split("=", parts: 2) |> List.to_tuple()
     end)
+    |> Enum.map(fn {key, value} -> "#{key}=#{value}" end)
+    |> Enum.join("; ")
   end
 end

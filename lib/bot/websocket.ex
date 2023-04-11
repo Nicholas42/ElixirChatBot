@@ -2,34 +2,32 @@ defmodule Bot.Websocket do
   use WebSockex
 
   def start_link(url: url, state: state, opts: opts) do
-    WebSockex.start_link(url, __MODULE__, state, opts) |> IO.inspect()
+    WebSockex.start_link(url, __MODULE__, state, opts)
   end
 
-  def handle_frame({type, msg}, state) do
-    IO.puts("frame")
+  def handle_frame({:text, msg}, state) do
     result = JSON.decode!(msg)
-    IO.puts("Received Message - Type: #{inspect(type)} -- Message: #{inspect(result)}")
 
     if is_map(result) do
+      Enum.each(state.bots, &GenServer.cast(&1, {:message, result}))
       {:ok, Bot.State.update_delay(state, Map.get(result, "delay", 0))}
     else
+      IO.puts("Does this happen?")
       {:ok, state}
     end
   end
 
   def handle_cast({:send, message}, state) do
-    IO.puts("foo")
     frame =
       {:text,
        JSON.encode!(
          channel: state.channel,
          name: message.name,
          message: message.message,
-         delay: state.delay,
+         delay: state.delay + 1,
          bottag: 1
        )}
 
-    IO.puts("bar")
     {:reply, frame, state}
   end
 end
