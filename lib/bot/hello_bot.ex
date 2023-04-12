@@ -7,7 +7,7 @@ defmodule Bot.HelloBot do
 
   onMessage do
     cond do
-      message == "Hello, Mark" -> %Message{name: "Mark", message: "Hello, #{name}"}
+      message == "Hello, Mike" -> %Message{name: "Mike", message: "Hello, #{name}"}
       message == "Hello there" -> %Message{message: "General Kenobi!", name: "General Grievous"}
       true -> nil
     end
