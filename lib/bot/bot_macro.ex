@@ -33,6 +33,8 @@ defmodule Bot.BotMacro do
       use GenServer
       import BotMacro
       alias Bot.Message
+      Module.register_attribute(__MODULE__, :is_bot, persist: true)
+      Module.put_attribute(__MODULE__, :is_bot, true)
 
       def start_link(_) do
         name = unquote(opts[:name]) || __MODULE__

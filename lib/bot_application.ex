@@ -4,7 +4,11 @@ defmodule BotApplication do
   def start(_type, _args) do
     cookies = Bot.CookieHelper.get_cookies()
 
-    bots = [Bot.HelloBot, Bot.TdBot]
+    bots =
+      Application.get_application(Bot)
+      |> :application.get_key(:modules)
+      |> elem(1)
+      |> Enum.filter(& &1.__info__(:attributes)[:is_bot])
 
     children =
       [
