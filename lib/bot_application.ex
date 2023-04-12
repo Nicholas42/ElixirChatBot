@@ -2,7 +2,8 @@ defmodule BotApplication do
   use Application
 
   def start(_type, _args) do
-    cookies = Bot.CookieHelper.get_cookies()
+    cookie = Bot.CookieHelper.get_cookies()
+    channels = ["elixir", "rubentest"]
 
     bots =
       Application.get_application(Bot)
@@ -12,22 +13,17 @@ defmodule BotApplication do
 
     children =
       [
-        {Bot.Websocket,
-         [
-           url: "wss://chat.qed-verein.de/websocket?version=2&channel=elixir",
-           state: %Bot.State{bots: bots},
-           opts: [
-             extra_headers: [cookie: cookies, origin: "https://chat.qed-verein.de"],
-             debug: [:trace],
-             name: Bot.Websocket
-           ]
-         ]}
+        {DynamicSupervisor, name: Bot.DynamicSupervisor},
+        {Bot.ChannelRegistry, [bots: bots, cookie: cookie]}
       ] ++ Enum.map(bots, &{&1, []})
 
-    Supervisor.start_link(children, strategy: :one_for_one)
+    ret = Supervisor.start_link(children, strategy: :one_for_one)
+    channels |> Enum.map(&GenServer.call(Bot.ChannelRegistry, {:add, &1}))
+    ret
   end
 
-  def post_message(message) do
-    WebSockex.cast(Bot.Websocket, {:send, message})
+  def post_message(message, channel) do
+    IO.inspect({message, channel})
+    GenServer.cast(Bot.ChannelRegistry, {:post, message, channel})
   end
 end
