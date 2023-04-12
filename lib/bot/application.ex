@@ -24,6 +24,10 @@ defmodule Bot.Application do
   end
 
   def post(message, name \\ "ElixirBot") do
-    WebSockex.cast(Bot.Websocket, {:send, %Bot.Message{name: name, message: message}})
+    post_message(%Bot.Message{name: name, message: message})
+  end
+
+  def post_message(message) do
+    WebSockex.cast(Bot.Websocket, {:send, message})
   end
 end
