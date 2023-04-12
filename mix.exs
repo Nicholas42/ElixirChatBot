@@ -14,7 +14,7 @@ defmodule Bot.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {Bot.Application, []},
+      mod: {BotApplication, []},
       extra_applications: [:logger]
     ]
   end

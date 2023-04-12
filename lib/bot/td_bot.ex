@@ -1,7 +1,5 @@
 defmodule Bot.TdBot do
-  import Bot.BotMacro
-
-  botInit do end
+  use Bot.BotMacro
 
   onMessage do
     if String.starts_with?(message, "!print") do

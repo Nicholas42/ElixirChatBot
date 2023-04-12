@@ -1,4 +1,4 @@
-defmodule Bot.Application do
+defmodule BotApplication do
   use Application
 
   def start(_type, _args) do
@@ -21,10 +21,6 @@ defmodule Bot.Application do
       ] ++ Enum.map(bots, &{&1, []})
 
     Supervisor.start_link(children, strategy: :one_for_one)
-  end
-
-  def post(message, name \\ "ElixirBot") do
-    post_message(%Bot.Message{name: name, message: message})
   end
 
   def post_message(message) do

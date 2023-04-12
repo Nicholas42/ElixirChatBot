@@ -1,9 +1,5 @@
 defmodule Bot.HelloBot do
-  import Bot.BotMacro
-  alias Bot.Message
-
-  botInit do
-  end
+  use Bot.BotMacro
 
   onMessage do
     cond do
