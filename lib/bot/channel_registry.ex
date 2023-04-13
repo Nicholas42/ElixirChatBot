@@ -1,22 +1,30 @@
 defmodule Bot.ChannelRegistry do
-  use Agent
+  use Supervisor
 
   def start_link(arg) do
-    Agent.start_link(fn -> init(arg) end)
+    Supervisor.start_link(__MODULE__, arg, name: __MODULE__)
   end
 
   def init(channels: channels, bots: bots, cookie: cookie) do
-    channels
-    |> Enum.map(fn channel ->
-      WebSockex.start_link(
-        "wss://chat.qed-verein.de/websocket?version=2&channel=#{channel}",
-        Bot.Websocket,
-        %Bot.State{bots: bots},
-        extra_headers: [cookie: cookie, origin: "https://chat.qed-verein.de"],
-        debug: [:trace],
-        name: channel_name(channel)
-      )
-    end)
+    children =
+      channels
+      |> Enum.map(fn channel ->
+        Supervisor.child_spec(
+          {Bot.Websocket,
+           [
+             url: "wss://chat.qed-verein.de/websocket?version=2&channel=#{channel}",
+             state: %Bot.State{bots: bots},
+             opts: [
+               extra_headers: [cookie: cookie, origin: "https://chat.qed-verein.de"],
+               debug: [:trace],
+               name: channel_name(channel)
+             ]
+           ]},
+          id: {Bot.Websocket, channel}
+        )
+      end)
+
+    Supervisor.init(children, strategy: :one_for_one)
   end
 
   def post_message(message, channel) do
