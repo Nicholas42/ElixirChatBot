@@ -3,7 +3,6 @@ defmodule BotApplication do
   use Application
 
   def start(_type, _args) do
-    cookie = Bot.CookieHelper.get_cookies()
     channels = ["elixir", "rubentest"]
 
     bots =
@@ -15,7 +14,7 @@ defmodule BotApplication do
     children =
       [
         {Registry, keys: :unique, name: Bot.Registry},
-        {ChannelRegistry, channels: channels, bots: bots, cookie: cookie}
+        {ChannelRegistry, channels: channels, bots: bots}
       ] ++
         Enum.map(bots, &{&1, []})
 

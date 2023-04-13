@@ -1,5 +1,5 @@
 defmodule Bot.BotMacro do
-  alias Bot.ChannelRegistry
+  alias Bot.Websocket
   alias Bot.BotMacro
 
   defmacro onMessage(do: block) do
@@ -14,12 +14,10 @@ defmodule Bot.BotMacro do
           _ = unquote(m_name)
           _ = unquote(m_message)
 
-          IO.inspect(msg)
           result = unquote(block)
-          IO.inspect(result)
 
           if result do
-            ChannelRegistry.post_message(result, Map.get(msg, "channel"))
+            Websocket.post_message(result, Map.get(msg, "channel"))
           end
         end
 
