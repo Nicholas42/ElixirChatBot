@@ -16,9 +16,8 @@ defmodule Bot.CookieHelper do
       {key, _} -> String.match?(key, ~r/\Aset-cookie\z/i)
     end)
     |> Enum.map(fn {_, value} ->
-      value |> String.split(";") |> hd |> String.split("=", parts: 2) |> List.to_tuple()
+      value |> String.split(";") |> hd |> String.split("=", parts: 2) |> Enum.join("=")
     end)
-    |> Enum.map(fn {key, value} -> "#{key}=#{value}" end)
     |> Enum.join("; ")
   end
 end

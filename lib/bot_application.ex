@@ -13,7 +13,7 @@ defmodule BotApplication do
 
     children =
       [
-        {Registry, keys: :unique, name: Bot.Registry},
+        {Registry, keys: :unique, name: :bot_registry},
         {ChannelRegistry, channels: channels, bots: bots}
       ] ++
         Enum.map(bots, &{&1, []})

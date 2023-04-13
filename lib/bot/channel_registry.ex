@@ -10,8 +10,8 @@ defmodule Bot.ChannelRegistry do
       channels
       |> Enum.map(fn channel ->
         Supervisor.child_spec(
-          {Bot.Websocket, [channel: channel, bots: bots]},
-          id: {Bot.Websocket, channel}
+          {Bot.Channel, [channel: channel, bots: bots]},
+          id: {Bot.Channel, channel}
         )
       end)
 

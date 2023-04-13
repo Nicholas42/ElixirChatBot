@@ -1,4 +1,4 @@
-defmodule Bot.Websocket do
+defmodule Bot.Channel do
   use WebSockex
 
   def start_link(channel: channel, bots: bots) do
@@ -45,6 +45,6 @@ defmodule Bot.Websocket do
   end
 
   defp channel_name(channel) do
-    {:via, Registry, {Bot.Registry, channel}}
+    {:via, Registry, {:bot_registry, channel}}
   end
 end
