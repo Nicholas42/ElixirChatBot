@@ -1,4 +1,5 @@
 defmodule Bot.BotMacro do
+  alias Bot.ChannelRegistry
   alias Bot.BotMacro
   defmacro onMessage(do: block) do
     m_message = Macro.var(:message, nil)
@@ -17,7 +18,7 @@ defmodule Bot.BotMacro do
           IO.inspect(result)
 
           if result do
-            BotApplication.post_message(result, Map.get(msg, "channel"))
+            ChannelRegistry.post_message(result, Map.get(msg, "channel"))
           end
         end
 

@@ -1,4 +1,5 @@
 defmodule BotApplication do
+  alias Bot.ChannelRegistry
   use Application
 
   def start(_type, _args) do
@@ -13,17 +14,11 @@ defmodule BotApplication do
 
     children =
       [
-        {DynamicSupervisor, name: Bot.DynamicSupervisor},
-        {Bot.ChannelRegistry, [bots: bots, cookie: cookie]}
-      ] ++ Enum.map(bots, &{&1, []})
+        {Registry, keys: :unique, name: Bot.Registry},
+        {ChannelRegistry, channels: channels, bots: bots, cookie: cookie}
+      ] ++
+        Enum.map(bots, &{&1, []})
 
-    ret = Supervisor.start_link(children, strategy: :one_for_one)
-    channels |> Enum.map(&GenServer.call(Bot.ChannelRegistry, {:add, &1}))
-    ret
-  end
-
-  def post_message(message, channel) do
-    IO.inspect({message, channel})
-    GenServer.cast(Bot.ChannelRegistry, {:post, message, channel})
+    Supervisor.start_link(children, strategy: :one_for_one)
   end
 end

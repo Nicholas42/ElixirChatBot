@@ -1,35 +1,27 @@
 defmodule Bot.ChannelRegistry do
-  use GenServer
-
-  def start_link(args) do
-    GenServer.start_link(__MODULE__, args, name: __MODULE__)
+  use Agent
+  def start_link(arg) do
+    Agent.start_link(fn -> init(arg)end )
   end
-  def init(bots: bots, cookie: cookie) do
-    {:ok, [bots: bots, cookie: cookie, channels: %{}]}
-  end
-
-  def handle_call({:add, channel}, _from, bots: bots, cookie: cookie, channels: channels) do
-    {:ok, pid} =
-      DynamicSupervisor.start_child(
-        Bot.DynamicSupervisor,
-        {Bot.Websocket,
-         [
-           url: "wss://chat.qed-verein.de/websocket?version=2&channel=#{channel}",
-           state: %Bot.State{bots: bots},
-           opts: [
-             extra_headers: [cookie: cookie, origin: "https://chat.qed-verein.de"],
-             debug: [:trace]
-           ]
-         ]}
+  def init([channels: channels, bots: bots, cookie: cookie]) do
+    channels
+    |> Enum.map(fn channel ->
+      WebSockex.start_link(
+        "wss://chat.qed-verein.de/websocket?version=2&channel=#{channel}",
+        Bot.Websocket,
+        %Bot.State{bots: bots},
+        extra_headers: [cookie: cookie, origin: "https://chat.qed-verein.de"],
+        debug: [:trace],
+        name: channel_name(channel)
       )
-
-    {:reply, pid, [bots: bots, cookie: cookie, channels: Map.put(channels, channel, pid)]}
+    end)
   end
 
-  def handle_cast({:post, message, channel}, state) do
-    IO.inspect({message, channel, state})
-    WebSockex.cast(Map.get(state[:channels], channel), {:send, message})
-    {:noreply, state}
+  def post_message(message, channel) do
+    WebSockex.cast(channel_name(channel), {:send, message})
+  end
+
+  defp channel_name(channel) do
+    {:via, Registry, {Bot.Registry, channel}}
   end
 end
-
