@@ -1,9 +1,11 @@
 defmodule Bot.ChannelRegistry do
   use Agent
+
   def start_link(arg) do
-    Agent.start_link(fn -> init(arg)end )
+    Agent.start_link(fn -> init(arg) end)
   end
-  def init([channels: channels, bots: bots, cookie: cookie]) do
+
+  def init(channels: channels, bots: bots, cookie: cookie) do
     channels
     |> Enum.map(fn channel ->
       WebSockex.start_link(

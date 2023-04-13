@@ -1,6 +1,7 @@
 defmodule Bot.BotMacro do
   alias Bot.ChannelRegistry
   alias Bot.BotMacro
+
   defmacro onMessage(do: block) do
     m_message = Macro.var(:message, nil)
     m_name = Macro.var(:name, nil)

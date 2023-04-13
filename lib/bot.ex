@@ -1,3 +1,2 @@
 defmodule Bot do
-
 end
